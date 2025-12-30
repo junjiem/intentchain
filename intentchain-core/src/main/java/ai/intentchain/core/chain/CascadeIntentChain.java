@@ -50,10 +50,14 @@ public class CascadeIntentChain {
         Instant start = Instant.now();
         String traceId = UUID.randomUUID().toString();
         List<String> cascadePath = new ArrayList<>();
-        List<Intent> intents;
+        List<Intent> intents = null;
         for (IntentClassifier classifier : classifiers) {
             cascadePath.add(classifier.classifierName());
-            intents = classifier.classify(text);
+            try {
+                intents = classifier.classify(text);
+            } catch (Exception e) {
+                log.warn("Intent classifier '" + classifier.classifierName() + "' classify exception.", e);
+            }
             if (intents == null || intents.isEmpty()) {
                 continue;
             }
