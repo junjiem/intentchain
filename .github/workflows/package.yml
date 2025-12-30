@@ -1,0 +1,137 @@
+name: Package New Version
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          # Unbundled variants (without JRE)
+          - os: ubuntu-latest
+            maven_profile: os:any-os-full,jar:built-in-small
+            asset_suffix: full
+            package_type: unbundled
+          - os: ubuntu-latest
+            maven_profile: os:any-os-lite,!jar:built-in-small
+            asset_suffix: lite
+            package_type: unbundled
+          - os: windows-latest
+            maven_profile: os:windows-amd64,jar:built-in-small
+            asset_suffix: windows-amd64
+            package_type: unbundled
+          - os: macos-latest
+            maven_profile: os:macos-arm64,jar:built-in-small
+            asset_suffix: macos-arm64
+            package_type: unbundled
+          - os: ubuntu-latest
+            maven_profile: os:linux-amd64,jar:built-in-small
+            asset_suffix: linux-amd64
+            package_type: unbundled
+          - os: ubuntu-24.04-arm
+            maven_profile: os:linux-arm64,jar:built-in-small
+            asset_suffix: linux-arm64
+            package_type: unbundled
+          # Bundled variants (with JRE)
+          - os: windows-latest
+            maven_profile: os:windows-amd64,jar:built-in-small
+            asset_suffix: windows-amd64
+            package_type: bundled
+          - os: macos-latest
+            maven_profile: os:macos-arm64,jar:built-in-small
+            asset_suffix: macos-arm64
+            package_type: bundled
+          - os: ubuntu-latest
+            maven_profile: os:linux-amd64,jar:built-in-small
+            asset_suffix: linux-amd64
+            package_type: bundled
+          - os: ubuntu-24.04-arm
+            maven_profile: os:linux-arm64,jar:built-in-small
+            asset_suffix: linux-arm64
+            package_type: bundled
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Package with Maven
+        shell: bash
+        run: |
+          if [ "${{ matrix.package_type }}" = "bundled" ]; then
+            mvn -B clean package -P pkg:bundled,${{ matrix.maven_profile }}
+          else
+            mvn -B clean package -P pkg:unbundled,${{ matrix.maven_profile }}
+          fi
+      - name: Resolve project version
+        id: project_version
+        shell: bash
+        run: |
+          VERSION=$(mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+      - name: Prepare artifact
+        shell: bash
+        env:
+          VERSION: ${{ steps.project_version.outputs.version }}
+          SUFFIX: ${{ matrix.asset_suffix }}
+          PACKAGE_TYPE: ${{ matrix.package_type }}
+        run: |
+          mkdir -p dist
+          # 查找实际生成的文件
+          find intentchain-cli/target -name "*.tar.gz" -type f
+
+          if [ "$PACKAGE_TYPE" = "bundled" ]; then
+            # Bundled版本使用 -bundled 后缀
+            SRC="intentchain-cli/target/intentchain-cli-${VERSION}-${SUFFIX}-bundled.tar.gz"
+            if [ -f "$SRC" ]; then
+              DEST="dist/intentchain-cli-${VERSION}-${SUFFIX}-bundled.tar.gz"
+              cp "$SRC" "$DEST"
+              echo "Found bundled artifact: $SRC"
+            else
+              echo "ERROR: Bundled artifact not found: $SRC"
+              exit 1
+            fi
+          else
+            # Unbundled版本
+            SRC="intentchain-cli/target/intentchain-cli-${VERSION}-${SUFFIX}.tar.gz"
+            if [ -f "$SRC" ]; then
+              DEST="dist/intentchain-cli-${VERSION}-${SUFFIX}.tar.gz"
+              cp "$SRC" "$DEST"
+              echo "Found unbundled artifact: $SRC"
+            else
+              echo "ERROR: Unbundled artifact not found: $SRC"
+              exit 1
+            fi
+          fi
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: intentchain-cli-${{ matrix.asset_suffix }}-${{ matrix.package_type }}
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: List all artifacts
+        run: |
+          find dist -type f -name "*.tar.gz"
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*.tar.gz
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
