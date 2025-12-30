@@ -37,6 +37,10 @@ public interface IntentClassifierFactory extends Factory {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    default boolean useEmbeddingStore(){
+        return false;
+    }
+
     IntentClassifier create(@NonNull String name,
                             @NonNull ReadableConfig config,
                             EmbeddingModel embeddingModel,

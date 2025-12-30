@@ -309,7 +309,9 @@ public class ProjectUtil {
             ClassifierConfig classifierConfig = classifierConfigs.get(classifierName);
             String classifierFingerprint = contentClassifierFingerprint(project, classifierConfig);
             EmbeddingStore<TextSegment> embeddingStore = null;
-            if (embeddingStoreConfig != null) {
+            IntentClassifierFactory classifierFactory = IntentClassifierFactoryManager
+                    .getFactory(classifierConfig.getProvider());
+            if (embeddingStoreConfig != null && classifierFactory.useEmbeddingStore()) {
                 embeddingStore = FactoryUtil.createEmbeddingStore(
                         classifierFingerprint,
                         embeddingStoreConfig.getProvider(),

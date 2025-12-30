@@ -46,7 +46,7 @@ check_supports_project_path() {
     
     # Check if command is one of the supported commands
     case "$command" in
-        "build"|"clean"|"run"|"server")
+        "build"|"clean"|"run"|"test"|"server")
             return 0
             ;;
         *)

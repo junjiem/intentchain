@@ -59,6 +59,7 @@ if not "%COMMAND%"=="" (
     if "%COMMAND%"=="build" set SUPPORTS_PROJECT_PATH=true
     if "%COMMAND%"=="clean" set SUPPORTS_PROJECT_PATH=true
     if "%COMMAND%"=="run" set SUPPORTS_PROJECT_PATH=true
+    if "%COMMAND%"=="test" set SUPPORTS_PROJECT_PATH=true
     if "%COMMAND%"=="server" set SUPPORTS_PROJECT_PATH=true
 )
 

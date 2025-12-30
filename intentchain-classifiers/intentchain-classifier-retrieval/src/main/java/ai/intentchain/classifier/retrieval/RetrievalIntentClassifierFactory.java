@@ -97,6 +97,11 @@ public class RetrievalIntentClassifierFactory implements IntentClassifierFactory
     }
 
     @Override
+    public boolean useEmbeddingStore() {
+        return true;
+    }
+
+    @Override
     public IntentClassifier create(@NonNull String name,
                                    @NonNull ReadableConfig config,
                                    EmbeddingModel embeddingModel,
