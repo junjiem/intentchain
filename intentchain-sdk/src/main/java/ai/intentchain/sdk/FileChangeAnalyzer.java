@@ -1,7 +1,7 @@
 package ai.intentchain.sdk;
 
 
-import ai.intentchain.core.classifiers.data.TrainingData;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import ai.intentchain.sdk.data.FileChanges;
 import ai.intentchain.sdk.data.FileState;
 import ai.intentchain.sdk.data.project.Project;
@@ -52,8 +52,8 @@ class FileChangeAnalyzer {
                 // 新CSV文件
                 long lastModified = FileUtil.lastModified(filePath);
                 String md5Hash = FileUtil.md5(filePath);
-                List<TrainingData> trainingData = ProjectUtil.loadTrainingData(filePath, modelsPath);
-                newFiles.add(createFileState(relativePath, lastModified, md5Hash, trainingData));
+                List<TextLabel> textLabels = ProjectUtil.loadTextLabels(filePath, modelsPath);
+                newFiles.add(createFileState(relativePath, lastModified, md5Hash, textLabels));
             } else {
                 // 已存在的CSV文件，检查是否发生变化
                 boolean hasChanged = false;
@@ -64,8 +64,8 @@ class FileChangeAnalyzer {
                     hasChanged = !md5Hash.equals(fileState.getMd5Hash());
                 }
                 if (hasChanged) { // CSV文件已修改
-                    List<TrainingData> trainingData = ProjectUtil.loadTrainingData(filePath, modelsPath);
-                    modifiedFiles.add(createFileState(relativePath, lastModified, md5Hash, trainingData));
+                    List<TextLabel> textLabels = ProjectUtil.loadTextLabels(filePath, modelsPath);
+                    modifiedFiles.add(createFileState(relativePath, lastModified, md5Hash, textLabels));
                 } else {
                     // CSV文件未变化，保留之前的元数据
                     unchangedFiles.add(fileState);
@@ -84,8 +84,8 @@ class FileChangeAnalyzer {
     }
 
     private FileState createFileState(String relativePath, long lastModified, String md5Hash,
-                                      List<TrainingData> trainingData) {
-        ChangeTrainingDataCacheUtil.add(project.getName(), relativePath, trainingData);
+                                      List<TextLabel> textLabels) {
+        ChangeTrainingDataCacheUtil.add(project.getName(), relativePath, textLabels);
         return FileState.builder()
                 .relativePath(relativePath)
                 .lastModified(lastModified)

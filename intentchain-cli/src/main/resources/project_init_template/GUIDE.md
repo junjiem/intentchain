@@ -38,12 +38,7 @@ Now you can edit the `project.yaml` file to describe your Project, here is the b
 
 ### Models
 
-* 在`models`目录下的`.csv`文件为训练数据，第一列为文本内容，第二列为标签（label）。
-* 每行对应一条训练数据，通过CSV文件进行定义
-
-#### 文件结构和组织
-
-项目推荐以下文件组织方式：
+训练数据应该放在项目根目录下的 `models` 目录中，使用 CSV 格式：
 
 ```
 models/
@@ -53,14 +48,38 @@ models/
     └── products.csv        # 产品训练数据
 ```
 
+CSV 文件格式（无表头）：
+- **第一列**：文本内容（分类的文本）
+- **第二列**：标签（意图标签）
+
 
 ### Tests
 
+测试数据应该放在项目根目录下的 `tests` 目录中，使用 CSV 格式：
+
+```
+tests/
+  ├── test_set1.csv
+  ├── test_set2.csv
+  └── ...
+```
+
+CSV 文件格式（无表头）：
+- **第一列**：文本内容（待分类的文本）
+- **第二列**：标签（预期的意图标签）
+
+示例 `tests/test_data.csv`：
+```csv
+我要办理信用卡,办卡
+帮我查询余额,查询余额
+转账给张三,转账
+"我的卡被锁了,怎么办?",挂失
+```
 
 
-## Run Agent specified in the Project
+## Run the Project
 
-After all, just run your Agent by running the following command:
+After all, just run your project by running the following command:
 
 ```bash
 ichain run -p ./ROOT_DIRECTORY_OF_YOUR_PROJECT
@@ -70,3 +89,9 @@ Start the interactive classification command line.
 
 > **Note:** Incremental build will be automatically performed before run.
 
+
+## Test the Project
+
+```bash
+ichain test -p ./ROOT_DIRECTORY_OF_YOUR_PROJECT
+```

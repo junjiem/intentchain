@@ -1,7 +1,7 @@
 package ai.intentchain.server.openapi.controller;
 
 import ai.intentchain.core.chain.data.CascadeResult;
-import ai.intentchain.core.classifiers.data.TrainingData;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import ai.intentchain.sdk.data.project.Project;
 import ai.intentchain.server.openapi.config.ServerConfig;
 import ai.intentchain.server.openapi.service.ProjectService;
@@ -129,7 +129,7 @@ public class ApiController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping("/train")
-    public ResponseEntity<Map<String, String>> train(@Valid @RequestBody List<TrainingData> trainingData) {
+    public ResponseEntity<Map<String, String>> train(@Valid @RequestBody List<TextLabel> trainingData) {
         try {
             projectService.train(trainingData);
             return ResponseEntity.ok(Map.of("status", "success",

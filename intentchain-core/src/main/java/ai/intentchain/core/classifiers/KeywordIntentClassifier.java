@@ -1,15 +1,12 @@
 package ai.intentchain.core.classifiers;
 
 import ai.intentchain.core.classifiers.data.Intent;
-import ai.intentchain.core.classifiers.data.TrainingData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**

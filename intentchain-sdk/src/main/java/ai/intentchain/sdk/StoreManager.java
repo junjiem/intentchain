@@ -1,7 +1,7 @@
 package ai.intentchain.sdk;
 
 import ai.intentchain.core.chain.CascadeIntentChain;
-import ai.intentchain.core.classifiers.data.TrainingData;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import ai.intentchain.sdk.data.FileChanges;
 import ai.intentchain.sdk.data.FileState;
 import ai.intentchain.sdk.data.project.Project;
@@ -47,7 +47,7 @@ class StoreManager {
             Map<String, FileState> oldFileStates = fileStates.stream()
                     .collect(Collectors.toMap(FileState::getRelativePath, f -> f));
             List<FileState> newFileStates = new ArrayList<>(changes.unchangedFiles());
-            Map<String, List<TrainingData>> trainingDataMap = ChangeTrainingDataCacheUtil.remove(project.getName());
+            Map<String, List<TextLabel>> trainingDataMap = ChangeTrainingDataCacheUtil.remove(project.getName());
             changes.deletedFiles().forEach(fs -> remove(oldFileStates, fs));
             changes.newFiles().forEach(fs -> add(newFileStates, fs, trainingDataMap));
             changes.modifiedFiles().forEach(fs -> {
@@ -69,14 +69,14 @@ class StoreManager {
     }
 
     private void add(List<FileState> newFileStates, FileState fileState,
-                     Map<String, List<TrainingData>> trainingDataMap) {
+                     Map<String, List<TextLabel>> trainingDataMap) {
         String relativePath = fileState.getRelativePath();
         FileState.FileStateBuilder builder = FileState.builder()
                 .relativePath(fileState.getRelativePath())
                 .lastModified(fileState.getLastModified())
                 .md5Hash(fileState.getMd5Hash());
         if (trainingDataMap.containsKey(relativePath)) {
-            List<TrainingData> trainingData = trainingDataMap.get(relativePath);
+            List<TextLabel> trainingData = trainingDataMap.get(relativePath);
             builder.vectorIds(intentChain.train(trainingData));
         }
         newFileStates.add(builder.build());

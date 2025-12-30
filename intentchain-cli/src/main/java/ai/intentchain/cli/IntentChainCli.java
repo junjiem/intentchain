@@ -27,6 +27,7 @@ import java.util.concurrent.Callable;
                 InitCommand.class,
                 BuildCommand.class,
                 RunCommand.class,
+                TestCommand.class,
                 CleanCommand.class,
                 ServerCommand.class
         }

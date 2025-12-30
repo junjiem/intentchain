@@ -2,7 +2,7 @@ package ai.intentchain.sdk.utils;
 
 import ai.intentchain.core.chain.CascadeIntentChain;
 import ai.intentchain.core.classifiers.IntentClassifier;
-import ai.intentchain.core.classifiers.data.TrainingData;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import ai.intentchain.core.configuration.ConfigOption;
 import ai.intentchain.core.configuration.ConfigOptions;
 import ai.intentchain.core.configuration.ReadableConfig;
@@ -436,8 +436,8 @@ public class ProjectUtil {
         return null;
     }
 
-    public static List<TrainingData> loadTrainingData(@NonNull Path filePath, @NonNull Path dirPath) {
-        List<TrainingData> trainingData = new ArrayList<>();
+    public static List<TextLabel> loadTextLabels(@NonNull Path filePath, @NonNull Path dirPath) {
+        List<TextLabel> trainingData = new ArrayList<>();
         try (Reader reader = new FileReader(filePath.toFile());
              CSVParser csvParser = CSVParser.parse(reader, CSVFormat.DEFAULT)) {  // 不使用表头
             int i = 0;
@@ -447,7 +447,7 @@ public class ProjectUtil {
                         + dirPath.relativize(filePath) + " CSV file is incorrect");
                 String text = record.get(0).trim();
                 String label = record.get(1).trim();
-                trainingData.add(new TrainingData(text, label));
+                trainingData.add(new TextLabel(text, label));
                 i++;
             }
         } catch (IOException e) {

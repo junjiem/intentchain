@@ -3,7 +3,7 @@ package ai.intentchain.classifier.rac;
 import ai.intentchain.core.classifiers.IntentClassifier;
 import ai.intentchain.core.classifiers.IntentTrainer;
 import ai.intentchain.core.classifiers.data.Intent;
-import ai.intentchain.core.classifiers.data.TrainingData;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,10 +25,8 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -178,9 +176,9 @@ public class RacIntentClassifier implements IntentTrainer, IntentClassifier {
     }
 
     @Override
-    public List<String> train(@NonNull List<String> ids, @NonNull List<TrainingData> trainingData) {
-        log.debug("RAC - Start training " + trainingData.size() + " pieces of data.");
-        List<TextSegment> textSegments = trainingData.stream()
+    public List<String> train(@NonNull List<String> ids, @NonNull List<TextLabel> textLabels) {
+        log.debug("RAC - Start training " + textLabels.size() + " pieces of data.");
+        List<TextSegment> textSegments = textLabels.stream()
                 .map(d -> TextSegment.from(d.getText(), Metadata.from(LABEL, d.getLabel())))
                 .toList();
         List<Embedding> embeddings = embeddingModel.embedAll(textSegments).content();

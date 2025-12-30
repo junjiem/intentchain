@@ -44,17 +44,30 @@ public class RunCommand implements Callable<Integer> {
             defaultValue = ".")
     private String projectPath;
 
+    @Option(names = {"--skip-build"},
+            description = "Skip incremental build")
+    private boolean skipBuild;
+
     @Override
     public Integer call() {
         Path path = Paths.get(projectPath).toAbsolutePath();
+        log.info("Start running the project: {}", path);
         System.out.println("📁 Project path: " + path);
 
-        System.out.println("⚒️ Start incremental build the project");
-        ProjectBuilder builder = new ProjectBuilder(path);
-        try {
-            builder.build();
-        } catch (IOException e) {
-            throw new RuntimeException("The project incremental build failed", e);
+        // Build project first unless skipped
+        if (!skipBuild) {
+            System.out.println("⚒️ Start incremental build the project");
+            ProjectBuilder builder = new ProjectBuilder(path);
+            try {
+                builder.build();
+                System.out.println(AnsiUtil.string(
+                        "@|fg(green) ✅ Incremental build completed|@"));
+            } catch (IOException e) {
+                throw new RuntimeException("The project incremental build failed", e);
+            }
+        } else {
+            log.info("Skipping incremental build");
+            System.out.println("⏭️ Skipping incremental build");
         }
 
         Path historyFilePath = path.resolve(ProjectUtil.INTENTCHAIN_DIR_NAME + "/" + RUN_COMMAND_HISTORY);
@@ -106,8 +119,9 @@ public class RunCommand implements Callable<Integer> {
                             String.format("%.3f", duration.toMillis() / 1000.0) :
                             String.format("%.6f", duration.toNanos() / 1000_000_000.0);
                     System.out.println(AnsiUtil.string("@|fg(blue) Duration: " + seconds + "s|@"));
-                    System.out.println(AnsiUtil.string("@|fg(blue) Cascade: "
-                                                       + String.join(" -> ", result.getCascadePath()) + "|@"));
+                    String cascadePath = result.getCascadePath().isEmpty() ? "N/A"
+                            : String.join(" -> ", result.getCascadePath());
+                    System.out.println(AnsiUtil.string("@|fg(blue) Cascade: " + cascadePath + "|@"));
                     System.out.println(AnsiUtil.string("@|fg(cyan) Intents: "
                                                        + JSON_MAPPER.writeValueAsString(result.getIntents()) + "|@"));
                 } catch (Exception e) {

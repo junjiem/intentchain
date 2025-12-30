@@ -1,6 +1,6 @@
 package ai.intentchain.sdk;
 
-import ai.intentchain.core.classifiers.data.TrainingData;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import lombok.NonNull;
 
 import java.util.Collections;
@@ -13,20 +13,20 @@ class ChangeTrainingDataCacheUtil {
     private ChangeTrainingDataCacheUtil() {
     }
 
-    // Map<projectId, Map<yamlFileRelativePath, List<TrainingData>>>
-    private final static Map<String, Map<String, List<TrainingData>>> CACHE = new HashMap<>();
+    // Map<projectId, Map<fileRelativePath, List<TextLabel>>>
+    private final static Map<String, Map<String, List<TextLabel>>> CACHE = new HashMap<>();
 
     public static void add(@NonNull String projectId, @NonNull String relativePath,
-                           @NonNull List<TrainingData> trainingData) {
-        Map<String, List<TrainingData>> map = new HashMap<>();
+                           @NonNull List<TextLabel> textLabels) {
+        Map<String, List<TextLabel>> map = new HashMap<>();
         if (CACHE.containsKey(projectId)) {
             map = CACHE.get(projectId);
         }
-        map.put(relativePath, trainingData);
+        map.put(relativePath, textLabels);
         CACHE.put(projectId, map);
     }
 
-    public static Map<String, List<TrainingData>> remove(String projectId) {
+    public static Map<String, List<TextLabel>> remove(String projectId) {
         if (CACHE.containsKey(projectId)) {
             return CACHE.remove(projectId);
         }

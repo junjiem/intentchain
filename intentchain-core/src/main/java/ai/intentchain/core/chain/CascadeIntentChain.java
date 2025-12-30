@@ -5,12 +5,10 @@ import ai.intentchain.core.classifiers.IntentCache;
 import ai.intentchain.core.classifiers.IntentClassifier;
 import ai.intentchain.core.classifiers.IntentTrainer;
 import ai.intentchain.core.classifiers.data.Intent;
-import ai.intentchain.core.classifiers.data.TrainingData;
-import com.google.common.base.Preconditions;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -49,7 +47,6 @@ public class CascadeIntentChain {
     }
 
     public CascadeResult classify(@NonNull String text) {
-        Preconditions.checkArgument(StringUtils.isNotBlank(text), "text is blank");
         Instant start = Instant.now();
         String traceId = UUID.randomUUID().toString();
         List<String> cascadePath = new ArrayList<>();
@@ -69,10 +66,10 @@ public class CascadeIntentChain {
                         .forEach(c -> c.set(text, values));
             }
             if (selfLearning && !(classifier instanceof IntentCache)) {
-                List<TrainingData> trainingData = intents.stream()
+                List<TextLabel> trainingData = intents.stream()
                         .filter(i -> i.getScore() >= selfLearningThreshold)
                         .filter(i -> !selfLearningExcludes.contains(i.getLabel()))
-                        .map(i -> new TrainingData(text, i.getLabel()))
+                        .map(i -> new TextLabel(text, i.getLabel()))
                         .toList();
                 if (!trainingData.isEmpty()) {
                     train(trainingData);
@@ -83,12 +80,12 @@ public class CascadeIntentChain {
         return new CascadeResult(traceId, text, cascadePath, start);
     }
 
-    public Map<String, List<String>> train(@NonNull List<TrainingData> trainingData) {
+    public Map<String, List<String>> train(@NonNull List<TextLabel> trainingData) {
         return trainers.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().train(trainingData)));
     }
 
-    public void remove(Map<String, List<String>> keysMap) {
+    public void remove(@NonNull Map<String, List<String>> keysMap) {
         keysMap.entrySet().stream()
                 .filter(e -> trainers.containsKey(e.getKey()))
                 .forEach(e -> trainers.get(e.getKey()).remove(e.getValue()));

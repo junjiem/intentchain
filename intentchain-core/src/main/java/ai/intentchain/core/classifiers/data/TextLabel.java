@@ -3,12 +3,12 @@ package ai.intentchain.core.classifiers.data;
 import lombok.*;
 
 /**
- * Training Data
+ * Text And Label
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TrainingData {
+public class TextLabel {
     @NonNull
     private String text;
     @NonNull

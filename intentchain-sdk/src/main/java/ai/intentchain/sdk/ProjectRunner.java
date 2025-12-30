@@ -2,7 +2,7 @@ package ai.intentchain.sdk;
 
 import ai.intentchain.core.chain.CascadeIntentChain;
 import ai.intentchain.core.chain.data.CascadeResult;
-import ai.intentchain.core.classifiers.data.TrainingData;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import ai.intentchain.sdk.data.project.Project;
 import ai.intentchain.sdk.utils.ProjectUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,7 +35,7 @@ public class ProjectRunner {
         return result;
     }
 
-    public void train(@NonNull List<TrainingData> trainingData) {
+    public void train(@NonNull List<TextLabel> trainingData) {
         intentChain.train(trainingData);
     }
 }

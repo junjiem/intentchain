@@ -3,7 +3,7 @@ package ai.intentchain.classifier.retrieval;
 import ai.intentchain.core.classifiers.IntentClassifier;
 import ai.intentchain.core.classifiers.IntentTrainer;
 import ai.intentchain.core.classifiers.data.Intent;
-import ai.intentchain.core.classifiers.data.TrainingData;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -179,9 +179,9 @@ public class RetrievalIntentClassifier implements IntentTrainer, IntentClassifie
     }
 
     @Override
-    public List<String> train(@NonNull List<String> ids, @NonNull List<TrainingData> trainingData) {
-        log.debug("Retrieval - Start training " + trainingData.size() + " pieces of data.");
-        List<TextSegment> textSegments = trainingData.stream()
+    public List<String> train(@NonNull List<String> ids, @NonNull List<TextLabel> textLabels) {
+        log.debug("Retrieval - Start training " + textLabels.size() + " pieces of data.");
+        List<TextSegment> textSegments = textLabels.stream()
                 .map(d -> TextSegment.from(d.getText(), Metadata.from(LABEL, d.getLabel())))
                 .toList();
         List<Embedding> embeddings = embeddingModel.embedAll(textSegments).content();

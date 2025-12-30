@@ -1,7 +1,7 @@
 package ai.intentchain.server.openapi.service;
 
 import ai.intentchain.core.chain.data.CascadeResult;
-import ai.intentchain.core.classifiers.data.TrainingData;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import ai.intentchain.sdk.ProjectRunner;
 import ai.intentchain.sdk.data.project.Project;
 import ai.intentchain.sdk.utils.ProjectUtil;
@@ -44,7 +44,7 @@ public class ProjectService {
         return getProjectRunner().classify(question);
     }
 
-    public void train(@NonNull List<TrainingData> trainingData) {
+    public void train(@NonNull List<TextLabel> trainingData) {
         getProjectRunner().train(trainingData);
     }
 }
