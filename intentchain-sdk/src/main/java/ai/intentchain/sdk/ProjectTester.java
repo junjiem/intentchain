@@ -115,7 +115,7 @@ public class ProjectTester {
                 List<String> predictedLabels = result.getIntents().stream().map(Intent::getLabel).toList();
 
                 // Compare with expected label
-                boolean correct = !predictedLabels.isEmpty() && predictedLabels.get(0).equals(textLabel.getLabel());
+                boolean correct = predictedLabels.contains(textLabel.getLabel());
 
                 testCase.setPrediction(predictedLabels, correct, durationMs, result.getCascadePath());
                 log.debug("Test case - Text: [{}], Expected: [{}], Predicted: [{}], Correct: {}",
@@ -128,20 +128,5 @@ public class ProjectTester {
 
             report.addTestCase(testCase);
         }
-    }
-
-    /**
-     * Extract the final intent from cascade result
-     *
-     * @param result cascade result
-     * @return final intent label
-     */
-    private String extractFinalIntent(@NonNull CascadeResult result) {
-        List<Intent> intents = result.getIntents();
-        if (intents.isEmpty()) {
-            return "UNKNOWN";
-        }
-        // Return the last intent's label
-        return intents.get(intents.size() - 1).getLabel();
     }
 }

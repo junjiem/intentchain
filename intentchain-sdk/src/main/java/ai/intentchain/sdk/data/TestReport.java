@@ -67,18 +67,56 @@ public class TestReport {
         } else {
             failedCases++;
         }
-
-        // Update label statistics
-        String label = testCase.getExpectedLabel();
-        LabelStats stats = labelStatsMap.computeIfAbsent(label, k -> new LabelStats(label));
-        stats.incrementTotal();
-        if (testCase.isCorrect()) {
-            stats.incrementCorrect();
-        }
     }
 
     public void finish() {
         this.endTime = LocalDateTime.now();
+        // Calculate metrics for each label
+        calculateMetrics();
+    }
+
+    /**
+     * Calculate precision, recall, and F1 metrics for each label
+     */
+    private void calculateMetrics() {
+        // Collect all unique labels (from both expected and predicted)
+        for (TestCase testCase : testCases) {
+            String expectedLabel = testCase.getExpectedLabel();
+            labelStatsMap.computeIfAbsent(expectedLabel, k -> new LabelStats(expectedLabel));
+            
+            // Also track predicted labels
+            for (String predictedLabel : testCase.getPredictedLabels()) {
+                labelStatsMap.computeIfAbsent(predictedLabel, k -> new LabelStats(predictedLabel));
+            }
+        }
+
+        // Calculate TP, FP, FN for each label
+        for (TestCase testCase : testCases) {
+            String expectedLabel = testCase.getExpectedLabel();
+            List<String> predictedLabels = testCase.getPredictedLabels();
+
+            for (Map.Entry<String, LabelStats> entry : labelStatsMap.entrySet()) {
+                String label = entry.getKey();
+                LabelStats stats = entry.getValue();
+
+                stats.incrementTotal();
+                if (testCase.isCorrect()) {
+                    stats.incrementCorrect();
+                }
+
+                boolean isExpected = label.equals(expectedLabel);
+                boolean isPredicted = predictedLabels.contains(label);
+
+                if (isExpected && isPredicted) {
+                    stats.incrementTP(); // True Positive
+                } else if (!isExpected && isPredicted) {
+                    stats.incrementFP(); // False Positive
+                } else if (isExpected && !isPredicted) {
+                    stats.incrementFN(); // False Negative
+                }
+                // TN (True Negative) is not needed for precision/recall/F1
+            }
+        }
     }
 
     /**
@@ -89,6 +127,81 @@ public class TestReport {
             return 0.0;
         }
         return (double) correctCases / totalCases;
+    }
+
+    /**
+     * Get macro-averaged precision
+     */
+    public double getMacroPrecision() {
+        if (labelStatsMap.isEmpty()) {
+            return 0.0;
+        }
+        return labelStatsMap.values().stream()
+                .mapToDouble(LabelStats::getPrecision)
+                .average()
+                .orElse(0.0);
+    }
+
+    /**
+     * Get macro-averaged recall
+     */
+    public double getMacroRecall() {
+        if (labelStatsMap.isEmpty()) {
+            return 0.0;
+        }
+        return labelStatsMap.values().stream()
+                .mapToDouble(LabelStats::getRecall)
+                .average()
+                .orElse(0.0);
+    }
+
+    /**
+     * Get macro-averaged F1 score
+     */
+    public double getMacroF1() {
+        if (labelStatsMap.isEmpty()) {
+            return 0.0;
+        }
+        return labelStatsMap.values().stream()
+                .mapToDouble(LabelStats::getF1)
+                .average()
+                .orElse(0.0);
+    }
+
+    /**
+     * Get weighted-averaged precision
+     */
+    public double getWeightedPrecision() {
+        if (labelStatsMap.isEmpty() || totalCases == 0) {
+            return 0.0;
+        }
+        return labelStatsMap.values().stream()
+                .mapToDouble(stats -> stats.getPrecision() * stats.getSupport())
+                .sum() / totalCases;
+    }
+
+    /**
+     * Get weighted-averaged recall
+     */
+    public double getWeightedRecall() {
+        if (labelStatsMap.isEmpty() || totalCases == 0) {
+            return 0.0;
+        }
+        return labelStatsMap.values().stream()
+                .mapToDouble(stats -> stats.getRecall() * stats.getSupport())
+                .sum() / totalCases;
+    }
+
+    /**
+     * Get weighted-averaged F1 score
+     */
+    public double getWeightedF1() {
+        if (labelStatsMap.isEmpty() || totalCases == 0) {
+            return 0.0;
+        }
+        return labelStatsMap.values().stream()
+                .mapToDouble(stats -> stats.getF1() * stats.getSupport())
+                .sum() / totalCases;
     }
 
     /**
@@ -126,27 +239,41 @@ public class TestReport {
         sb.append("-".repeat(80)).append("\n");
         sb.append("Overall Statistics\n");
         sb.append("-".repeat(80)).append("\n");
-        sb.append(String.format("Total Cases:      %d\n", totalCases));
-        sb.append(String.format("Correct Cases:    %d\n", correctCases));
-        sb.append(String.format("Failed Cases:     %d\n", failedCases));
-        sb.append(String.format("Accuracy:         %.2f%%\n", getAccuracy() * 100));
-        sb.append(String.format("Total Duration:   %.2f s\n", getTotalDurationMs() / 1000.0));
-        sb.append(String.format("Average Duration: %.3f s\n\n", getAverageDurationMs() / 1000.0));
+        sb.append(String.format("Total Cases:         %d\n", totalCases));
+        sb.append(String.format("Correct Cases:       %d\n", correctCases));
+        sb.append(String.format("Failed Cases:        %d\n", failedCases));
+        sb.append(String.format("Accuracy:            %.2f%%\n\n", getAccuracy() * 100));
+        
+        sb.append(String.format("Macro Avg Precision: %.2f%%\n", getMacroPrecision() * 100));
+        sb.append(String.format("Macro Avg Recall:    %.2f%%\n", getMacroRecall() * 100));
+        sb.append(String.format("Macro Avg F1:        %.2f%%\n\n", getMacroF1() * 100));
+        
+        sb.append(String.format("Weighted Precision:  %.2f%%\n", getWeightedPrecision() * 100));
+        sb.append(String.format("Weighted Recall:     %.2f%%\n", getWeightedRecall() * 100));
+        sb.append(String.format("Weighted F1:         %.2f%%\n\n", getWeightedF1() * 100));
+        
+        sb.append(String.format("Total Duration:      %.2f s\n", getTotalDurationMs() / 1000.0));
+        sb.append(String.format("Average Duration:    %.3f s\n\n", getAverageDurationMs() / 1000.0));
 
         if (!labelStatsMap.isEmpty()) {
             sb.append("-".repeat(80)).append("\n");
             sb.append("Per-Label Statistics\n");
             sb.append("-".repeat(80)).append("\n");
-            sb.append(String.format("%-30s %10s %10s %10s\n", "Label", "Total", "Correct", "Accuracy"));
+            sb.append(String.format("%-20s %8s %8s %9s %8s %9s %9s %9s\n",
+                    "Label", "Total", "Correct", "Accuracy", "Support", "Precision", "Recall", "F1"));
             sb.append("-".repeat(80)).append("\n");
             labelStatsMap.values().stream()
-                    .sorted((a, b) -> b.getTotal() - a.getTotal())
+                    .sorted((a, b) -> b.getSupport() - a.getSupport())
                     .forEach(stats -> {
-                        sb.append(String.format("%-30s %10d %10d %9.2f%%\n",
+                        sb.append(String.format("%-20s %8s %8s %8.2f%% %8d %8.2f%% %8.2f%% %8.2f%%\n",
                                 stats.getLabel(),
                                 stats.getTotal(),
                                 stats.getCorrect(),
-                                stats.getAccuracy() * 100));
+                                stats.getAccuracy() * 100,
+                                stats.getSupport(),
+                                stats.getPrecision() * 100,
+                                stats.getRecall() * 100,
+                                stats.getF1() * 100));
                     });
             sb.append("\n");
         }
@@ -183,6 +310,9 @@ public class TestReport {
         private final String label;
         private int total = 0;
         private int correct = 0;
+        private int truePositives = 0;  // TP: predicted as this label and actually is this label
+        private int falsePositives = 0; // FP: predicted as this label but actually is not
+        private int falseNegatives = 0; // FN: not predicted as this label but actually is this label
 
         public LabelStats(String label) {
             this.label = label;
@@ -201,6 +331,60 @@ public class TestReport {
                 return 0.0;
             }
             return (double) correct / total;
+        }
+
+        public void incrementTP() {
+            truePositives++;
+        }
+
+        public void incrementFP() {
+            falsePositives++;
+        }
+
+        public void incrementFN() {
+            falseNegatives++;
+        }
+
+        /**
+         * Get support (number of true instances for this label)
+         */
+        public int getSupport() {
+            return truePositives + falseNegatives;
+        }
+
+        /**
+         * Get precision: TP / (TP + FP)
+         */
+        public double getPrecision() {
+            int denominator = truePositives + falsePositives;
+            if (denominator == 0) {
+                return 0.0;
+            }
+            return (double) truePositives / denominator;
+        }
+
+        /**
+         * Get recall: TP / (TP + FN)
+         */
+        public double getRecall() {
+            int denominator = truePositives + falseNegatives;
+            if (denominator == 0) {
+                return 0.0;
+            }
+            return (double) truePositives / denominator;
+        }
+
+        /**
+         * Get F1 score: 2 * (Precision * Recall) / (Precision + Recall)
+         */
+        public double getF1() {
+            double precision = getPrecision();
+            double recall = getRecall();
+            double sum = precision + recall;
+            if (sum == 0.0) {
+                return 0.0;
+            }
+            return 2 * (precision * recall) / sum;
         }
     }
 }
