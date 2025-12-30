@@ -1,0 +1,26 @@
+version: 1
+
+name: {{ project.name }}
+{% if project.description -%}
+description: {{ project.description }}
+{% endif -%}
+{% if project_configuration -%}
+    {{ "configuration:" }}
+    {% for line in project_configuration.split('\n') -%}
+        {{ "  " ~ line }}
+    {% endfor -%}
+{% endif -%}
+chain: # (List<String>, [Required]) The array of names of the specified classifiers forms a cascading chain.
+  - default  # You need to fill in correct classifier name
+
+
+classifiers:
+{{ "  - name: default" }}
+{{ "    description: default intent classifier" }}
+{{ "    provider: default" }}
+{% if classifier_configuration -%}
+    {{ "    configuration:" }}
+    {% for line in classifier_configuration.split('\n') -%}
+        {{ "      " ~ line }}
+    {% endfor -%}
+{% endif %}

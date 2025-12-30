@@ -1,0 +1,40 @@
+package ai.intentchain.embedder.inprocess;
+
+import ai.intentchain.core.configuration.ConfigOption;
+import ai.intentchain.core.configuration.ReadableConfig;
+import ai.intentchain.core.factories.EmbeddingModelFactory;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.embedding.onnx.bgesmallzhv15.BgeSmallZhV15EmbeddingModel;
+
+import java.util.Collections;
+import java.util.Set;
+
+public class BgeSmallZhV15EmbeddingModelFactory implements EmbeddingModelFactory {
+
+    public static final String IDENTIFIER = "bge-small-zh-v15";
+
+    @Override
+    public String factoryIdentifier() {
+        return IDENTIFIER;
+    }
+
+    @Override
+    public EmbeddingModel create(ReadableConfig config) {
+        return new BgeSmallZhV15EmbeddingModel();
+    }
+
+    @Override
+    public Set<ConfigOption<?>> requiredOptions() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<ConfigOption<?>> optionalOptions() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<ConfigOption<?>> fingerprintOptions() {
+        return Collections.emptySet();
+    }
+}

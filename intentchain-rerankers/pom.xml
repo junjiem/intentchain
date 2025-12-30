@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ai.intentchain</groupId>
+        <artifactId>intentchain-parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>intentchain-rerankers</artifactId>
+    <packaging>pom</packaging>
+    <name>IntentChain : Rerankers :</name>
+
+    <modules>
+        <module>intentchain-reranker-onnx-builtin</module>
+        <module>intentchain-reranker-ms-marco-minilm-l6-v2</module>
+        <module>intentchain-reranker-ms-marco-minilm-l6-v2-q</module>
+        <module>intentchain-reranker-ms-marco-tinybert-l2-v2</module>
+        <module>intentchain-reranker-ms-marco-tinybert-l2-v2-q</module>
+        <module>intentchain-reranker-onnx-local</module>
+        <module>intentchain-reranker-jina</module>
+        <module>intentchain-reranker-xinference</module>
+    </modules>
+
+</project>

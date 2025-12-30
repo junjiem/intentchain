@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ai.intentchain</groupId>
+        <artifactId>intentchain-parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>intentchain-llms</artifactId>
+    <packaging>pom</packaging>
+    <name>IntentChain : LLMs :</name>
+
+    <modules>
+        <module>intentchain-llm-openai</module>
+        <module>intentchain-llm-anthropic</module>
+        <module>intentchain-llm-ollama</module>
+        <module>intentchain-llm-gemini</module>
+        <module>intentchain-llm-xinference</module>
+        <module>intentchain-llm-azure-openai</module>
+    </modules>
+
+</project>

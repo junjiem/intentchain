@@ -1,0 +1,21 @@
+# Spring Boot 配置
+server:
+  port: 8080
+  address: 0.0.0.0
+
+intentchain:
+  server:
+    project-path: "."
+
+logging:
+  level:
+    ai.dat: INFO
+    org.springframework: WARN
+  pattern:
+    console: "%d{HH:mm:ss} %-5level %logger{20} - %msg%n"
+
+spring:
+  main:
+    banner-mode: off
+  jackson:
+    default-property-inclusion: non_null

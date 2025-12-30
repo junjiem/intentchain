@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ai.intentchain</groupId>
+        <artifactId>intentchain-parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>intentchain-embedders</artifactId>
+    <packaging>pom</packaging>
+    <name>IntentChain : Embedders :</name>
+
+    <modules>
+        <module>intentchain-embedder-bge-small-zh-v15</module>
+        <module>intentchain-embedder-bge-small-zh-v15-q</module>
+        <module>intentchain-embedder-onnx-local</module>
+        <module>intentchain-embedder-openai</module>
+        <module>intentchain-embedder-ollama</module>
+        <module>intentchain-embedder-jina</module>
+        <module>intentchain-embedder-xinference</module>
+        <module>intentchain-embedder-azure-openai</module>
+    </modules>
+
+</project>

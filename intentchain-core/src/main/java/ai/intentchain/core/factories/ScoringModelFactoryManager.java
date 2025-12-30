@@ -1,0 +1,27 @@
+package ai.intentchain.core.factories;
+
+import java.util.Set;
+
+public class ScoringModelFactoryManager {
+    private static final FactoryManager<ScoringModelFactory> factoryManager;
+
+    static {
+        factoryManager = new FactoryManager<>(ScoringModelFactory.class, "scoring (re-ranking) model");
+    }
+
+    public static ScoringModelFactory getFactory(String identifier) {
+        return factoryManager.getFactory(identifier);
+    }
+
+    public static String getDescription() {
+        return factoryManager.getDescription();
+    }
+
+    public static Set<String> getSupports() {
+        return factoryManager.getSupports();
+    }
+
+    public static boolean isSupported(String identifier) {
+        return factoryManager.isSupported(identifier);
+    }
+}

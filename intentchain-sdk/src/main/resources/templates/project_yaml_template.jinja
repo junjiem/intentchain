@@ -1,0 +1,128 @@
+# You should rename this file to project.yaml
+# Please pay attention to the comments starting with # and adjust the config accordingly, 2 steps basically:
+# 1.  you need to use your own embedding model, embedding store, reranking model, llm and classifiers
+# 2.  you need to fill in correct classifier name list in the chain section
+
+version: 1
+
+# ------------------------------------------------------------
+# Project basic configuration.
+# ------------------------------------------------------------
+name: intentchain_project_example
+description: intent-chain project configuration example.
+{% if project_configuration -%}
+    {{ "configuration:" }}
+    {% for line in project_configuration.split('\n') -%}
+        {{ "  " ~ line }}
+    {% endfor -%}
+{% endif -%}
+chain: # (List<String>, [Required]) The array of names of the specified classifiers forms a cascading chain.
+  #- inmemory  # You need to fill in correct classifier name
+  #- keyword  # You need to fill in correct classifier name
+  #- regex  # You need to fill in correct classifier name
+  #- default  # You need to fill in correct classifier name
+
+
+# ------------------------------------------------------------
+# Embedding model configuration. [Optional]
+{{ "# Supported providers are " }}
+{%- for item in embeddings -%}
+    {{ "`" ~ item.provider ~ "`" }}{% if item.display -%}{{ "(Default)" }}{% endif -%}{%- if not loop.last -%}{{ ", " }}{%- endif -%}
+{% endfor -%}.
+# ------------------------------------------------------------
+embedding:
+{% for item in embeddings -%}
+    {% if not item.display -%}{{ "#" }}{% endif -%}{{ "  provider: " ~ item.provider }}
+    {% if item.configuration -%}
+        {% if not item.display -%}{{ "#" }}{% endif -%}{{ "  configuration:" }}
+        {% for line in item.configuration.split('\n') -%}
+            {% if not item.display -%}{{ "#" }}{% endif -%}{{ "    " ~ line }}
+        {% endfor -%}
+    {% endif -%}
+    {% if not loop.last -%}{{ "\n" }}{% endif -%}
+{% endfor %}
+
+
+# ------------------------------------------------------------
+# Embedding store configuration. [Optional]
+{{ "# Supported providers are " }}
+{%- for item in embedding_stores -%}
+    {{ "`" ~ item.provider ~ "`" }}{% if item.display -%}{{ "(Default)" }}{% endif -%}{%- if not loop.last -%}{{ ", " }}{%- endif -%}
+{% endfor -%}.
+# ------------------------------------------------------------
+embedding_store:
+{% for item in embedding_stores -%}
+    {% if not item.display -%}{{ "#" }}{% endif -%}{{ "  provider: " ~ item.provider }}
+    {% if item.configuration -%}
+        {% if not item.display -%}{{ "#" }}{% endif -%}{{ "  configuration:" }}
+        {% for line in item.configuration.split('\n') -%}
+            {% if not item.display -%}{{ "#" }}{% endif -%}{{ "    " ~ line }}
+        {% endfor -%}
+    {% endif -%}
+    {% if not loop.last -%}{{ "\n" }}{% endif -%}
+{% endfor %}
+
+
+# ------------------------------------------------------------
+# Scoring (reranking) model configuration. [Optional]
+{{ "# Supported providers are " }}
+{%- for item in rerankings -%}
+    {{ "`" ~ item.provider ~ "`" }}{% if item.display -%}{{ "(Default)" }}{% endif -%}{%- if not loop.last -%}{{ ", " }}{%- endif -%}
+{% endfor -%}.
+# ------------------------------------------------------------
+reranking:
+{% for item in rerankings -%}
+    {% if not item.display -%}{{ "#" }}{% endif -%}{{ "  provider: " ~ item.provider }}
+    {% if item.configuration -%}
+        {% if not item.display -%}{{ "#" }}{% endif -%}{{ "  configuration:" }}
+        {% for line in item.configuration.split('\n') -%}
+            {% if not item.display -%}{{ "#" }}{% endif -%}{{ "    " ~ line }}
+        {% endfor -%}
+    {% endif -%}
+    {% if not loop.last -%}{{ "\n" }}{% endif -%}
+{% endfor %}
+
+
+# ------------------------------------------------------------
+# LLM (large language model) configuration. [Optional]
+{{ "# Supported providers are " }}
+{%- for item in llms -%}
+    {{ "`" ~ item.provider ~ "`" }}{% if item.display -%}{{ "(Default)" }}{% endif -%}{%- if not loop.last -%}{{ ", " }}{%- endif -%}
+{% endfor -%}.
+# ------------------------------------------------------------
+llm:
+{% for item in llms -%}
+    {% if not item.display -%}{{ "#" }}{% endif -%}{{ "  provider: " ~ item.provider }}
+    {% if item.configuration -%}
+        {% if not item.display -%}{{ "#" }}{% endif -%}{{ "  configuration:" }}
+        {% for line in item.configuration.split('\n') -%}
+            {% if not item.display -%}{{ "#" }}{% endif -%}{{ "    " ~ line }}
+        {% endfor -%}
+    {% endif -%}
+    {% if not loop.last -%}{{ "\n" }}{% endif -%}
+{% endfor %}
+
+
+# ------------------------------------------------------------
+# Intent classifiers configurations. [Required]
+{{ "# Supported providers are " }}
+{%- for item in classifiers -%}
+    {{ "`" ~ item.provider ~ "`" }}{% if item.display -%}{{ "(Default)" }}{% endif -%}{%- if not loop.last -%}{{ ", " }}{%- endif -%}
+{% endfor -%}.
+{% for item in agents -%}
+    {{ "# `" ~ item.provider ~ "`: " ~ item.comment }}
+{% endfor -%}
+# ------------------------------------------------------------
+classifiers:
+{% for item in classifiers -%}
+    {% if not item.display -%}{{ "#" }}{% endif -%}{{ "  - name: " ~ item.name }}
+    {% if not item.display -%}{{ "#" }}{% endif -%}{{ "    description: " ~ item.comment ~ "  # Intent classifier description" }}
+    {% if not item.display -%}{{ "#" }}{% endif -%}{{ "    provider: " ~ item.provider }}
+    {% if item.configuration -%}
+        {% if not item.display -%}{{ "#" }}{% endif -%}{{ "    configuration:" }}
+        {% for line in item.configuration.split('\n') -%}
+            {% if not item.display -%}{{ "#" }}{% endif -%}{{ "      " ~ line }}
+        {% endfor -%}
+    {% endif -%}
+    {% if not loop.last -%}{{ "\n" }}{% endif -%}
+{% endfor %}

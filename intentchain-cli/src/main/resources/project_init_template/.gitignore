@@ -1,0 +1,15 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# DAT project
+.intentchain/
+target/
+logs/
+.project.yml
+.project.yaml

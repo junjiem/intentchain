@@ -1,0 +1,27 @@
+package ai.intentchain.core.factories;
+
+import java.util.Set;
+
+public class EmbeddingStoreFactoryManager {
+    private static final FactoryManager<EmbeddingStoreFactory> factoryManager;
+
+    static {
+        factoryManager = new FactoryManager<>(EmbeddingStoreFactory.class, "embedding store");
+    }
+
+    public static EmbeddingStoreFactory getFactory(String identifier) {
+        return factoryManager.getFactory(identifier);
+    }
+
+    public static String getDescription() {
+        return factoryManager.getDescription();
+    }
+
+    public static Set<String> getSupports() {
+        return factoryManager.getSupports();
+    }
+
+    public static boolean isSupported(String identifier) {
+        return factoryManager.isSupported(identifier);
+    }
+}

@@ -1,0 +1,837 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ai.intentchain</groupId>
+        <artifactId>intentchain-parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>intentchain-cli</artifactId>
+    <name>IntentChain : CLI</name>
+
+    <properties>
+        <project.finalName>${project.artifactId}-${project.version}</project.finalName>
+        <main.class>ai.intentchain.cli.IntentChainCli</main.class>
+        <finalName.suffix>full</finalName.suffix>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Picocli CLI Framework -->
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.7.7</version>
+        </dependency>
+
+        <!-- JLine console -->
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>3.30.5</version>
+        </dependency>
+
+        <!-- Jansi -->
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <!-- IntentChain SDK -->
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-sdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- IntentChain Embedding Store -->
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-storer-weaviate</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-storer-pgvector</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-storer-qdrant</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-storer-milvus</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-storer-elasticsearch</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- IntentChain Embedding Model -->
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-embedder-openai</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-embedder-ollama</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-embedder-jina</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-embedder-xinference</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-embedder-azure-openai</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- IntentChain Reranking Model -->
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-reranker-jina</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-reranker-xinference</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- IntentChain Chat Model -->
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-llm-openai</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-llm-anthropic</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-llm-ollama</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-llm-gemini</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-llm-xinference</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-llm-azure-openai</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- IntentChain Intent Classifier -->
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-classifier-redis</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-classifier-retrieval</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-classifier-rac</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- IntentChain OpenAPI Server -->
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-server-openapi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Maven Shade Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.4.1</version>
+                    <configuration>
+                        <finalName>${project.finalName}</finalName>
+                        <transformers>
+                            <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>${main.class}</mainClass>
+                            </transformer>
+                            <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <resource>META-INF/spring.handlers</resource>
+                            </transformer>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <resource>META-INF/spring.schemas</resource>
+                            </transformer>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <resource>META-INF/spring.tooling</resource>
+                            </transformer>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <resource>
+                                    META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+                                </resource>
+                            </transformer>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <resource>
+                                    META-INF/spring/org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration.imports
+                                </resource>
+                            </transformer>
+                        </transformers>
+                        <filters>
+                            <filter>
+                                <artifact>*:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
+                    </configuration>
+                </plugin>
+                <!-- Maven Assembly Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.7.1</version>
+                    <configuration>
+                        <appendAssemblyId>false</appendAssemblyId>
+                        <attach>false</attach>
+                        <finalName>${project.finalName}</finalName>
+                        <outputDirectory>${project.build.directory}</outputDirectory>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <!-- Deploy Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip> <!-- 跳过部署 -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- central profile - 禁用 central-publishing-maven-plugin -->
+        <profile>
+            <id>central</id>
+            <build>
+                <plugins>
+                    <!-- 明确禁用 central-publishing-maven-plugin 的所有执行 -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.9.0</version>
+                        <executions>
+                            <execution>
+                                <id>injected-central-publishing</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>pkg:unbundled</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <project.finalName>${project.artifactId}-${project.version}-${finalName.suffix}</project.finalName>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>shade</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>pkg:bundled</id>
+            <properties>
+                <project.finalName>${project.artifactId}-${project.version}-${finalName.suffix}</project.finalName>
+                <project.package.finalName>${project.finalName}-bundled</project.package.finalName>
+                <jlink.jre.outputDirectory>${project.build.directory}/jlink-jre</jlink.jre.outputDirectory>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- Maven Shade Plugin -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>shade</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Maven Antrun Plugin to execute jlink -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>create-jlink-runtime</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <echo message="OS: ${os.name} ${os.version} (${os.arch})"/>
+                                        <echo message="Creating custom JRE with jlink..."/>
+                                        <delete dir="${jlink.jre.outputDirectory}"/>
+                                        <exec executable="${java.home}/bin/jlink" failonerror="true">
+                                            <arg value="--add-modules"/>
+                                            <arg value="java.base,java.compiler,java.desktop,java.instrument,java.logging,java.management,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.security.jgss,java.security.sasl,java.sql,java.sql.rowset,java.transaction.xa,java.xml,java.xml.crypto,jdk.crypto.ec,jdk.httpserver,jdk.jfr,jdk.unsupported,jdk.xml.dom,jdk.zipfs"/>
+                                            <arg value="--output"/>
+                                            <arg value="${jlink.jre.outputDirectory}"/>
+                                            <arg value="--compress"/>
+                                            <arg value="2"/>
+                                            <arg value="--strip-debug"/>
+                                            <arg value="--no-header-files"/>
+                                            <arg value="--no-man-pages"/>
+                                        </exec>
+                                        <echo message="Custom JRE created at ${jlink.jre.outputDirectory}"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Maven Assembly Plugin -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>assembly-jlink</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <finalName>${project.package.finalName}</finalName>
+                                    <descriptors>
+                                        <descriptor>assembly-jlink.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Windows amd64 -->
+        <profile>
+            <id>os:windows-amd64</id>
+            <properties>
+                <finalName.suffix>windows-amd64</finalName.suffix>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>shade</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <filters combine.children="append">
+                                        <filter>
+                                            <artifact>com.microsoft.onnxruntime:onnxruntime</artifact>
+                                            <excludes>
+                                                <exclude>ai/onnxruntime/native/linux-aarch64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/linux-x64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/osx-aarch64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/osx-x64/**</exclude>
+                                            </excludes>
+                                        </filter>
+                                        <filter>
+                                            <artifact>ai.djl.huggingface:tokenizers</artifact>
+                                            <excludes>
+                                                <exclude>native/lib/linux-aarch64/cpu/**</exclude>
+                                                <exclude>native/lib/linux-x86_64/cpu/**</exclude>
+                                                <exclude>native/lib/osx-aarch64/cpu/**</exclude>
+                                            </excludes>
+                                        </filter>
+                                        <filter>
+                                            <artifact>org.duckdb:duckdb_jdbc</artifact>
+                                            <excludes>
+                                                <exclude>libduckdb_java.so_linux_amd64</exclude>
+                                                <exclude>libduckdb_java.so_linux_arm64</exclude>
+                                                <exclude>libduckdb_java.so_osx_universal</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </filters>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Linux amd64 -->
+        <profile>
+            <id>os:linux-amd64</id>
+            <properties>
+                <finalName.suffix>linux-amd64</finalName.suffix>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>shade</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <filters combine.children="append">
+                                        <filter>
+                                            <artifact>com.microsoft.onnxruntime:onnxruntime</artifact>
+                                            <excludes>
+                                                <exclude>ai/onnxruntime/native/linux-aarch64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/osx-aarch64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/osx-x64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/win-x64/**</exclude>
+                                            </excludes>
+                                        </filter>
+                                        <filter>
+                                            <artifact>ai.djl.huggingface:tokenizers</artifact>
+                                            <excludes>
+                                                <exclude>native/lib/linux-aarch64/cpu/**</exclude>
+                                                <exclude>native/lib/osx-aarch64/cpu/**</exclude>
+                                                <exclude>native/lib/win-x86_64/cpu/**</exclude>
+                                            </excludes>
+                                        </filter>
+                                        <filter>
+                                            <artifact>org.duckdb:duckdb_jdbc</artifact>
+                                            <excludes>
+                                                <exclude>libduckdb_java.so_linux_arm64</exclude>
+                                                <exclude>libduckdb_java.so_osx_universal</exclude>
+                                                <exclude>libduckdb_java.so_windows_amd64</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </filters>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Linux arm64 -->
+        <profile>
+            <id>os:linux-arm64</id>
+            <properties>
+                <finalName.suffix>linux-arm64</finalName.suffix>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>shade</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <filters combine.children="append">
+                                        <filter>
+                                            <artifact>com.microsoft.onnxruntime:onnxruntime</artifact>
+                                            <excludes>
+                                                <exclude>ai/onnxruntime/native/linux-x64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/osx-aarch64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/osx-x64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/win-x64/**</exclude>
+                                            </excludes>
+                                        </filter>
+                                        <filter>
+                                            <artifact>ai.djl.huggingface:tokenizers</artifact>
+                                            <excludes>
+                                                <exclude>native/lib/linux-x86_64/cpu/**</exclude>
+                                                <exclude>native/lib/osx-aarch64/cpu/**</exclude>
+                                                <exclude>native/lib/win-x86_64/cpu/**</exclude>
+                                            </excludes>
+                                        </filter>
+                                        <filter>
+                                            <artifact>org.duckdb:duckdb_jdbc</artifact>
+                                            <excludes>
+                                                <exclude>libduckdb_java.so_linux_amd64</exclude>
+                                                <exclude>libduckdb_java.so_osx_universal</exclude>
+                                                <exclude>libduckdb_java.so_windows_amd64</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </filters>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- MaxOS arm64 -->
+        <profile>
+            <id>os:macos-arm64</id>
+            <properties>
+                <finalName.suffix>macos-arm64</finalName.suffix>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>shade</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <filters combine.children="append">
+                                        <filter>
+                                            <artifact>com.microsoft.onnxruntime:onnxruntime</artifact>
+                                            <excludes>
+                                                <exclude>ai/onnxruntime/native/linux-aarch64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/linux-x64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/osx-x64/**</exclude>
+                                                <exclude>ai/onnxruntime/native/win-x64/**</exclude>
+                                            </excludes>
+                                        </filter>
+                                        <filter>
+                                            <artifact>ai.djl.huggingface:tokenizers</artifact>
+                                            <excludes>
+                                                <exclude>native/lib/linux-aarch64/cpu/**</exclude>
+                                                <exclude>native/lib/linux-x86_64/cpu/**</exclude>
+                                                <exclude>native/lib/win-x86_64/cpu/**</exclude>
+                                            </excludes>
+                                        </filter>
+                                        <filter>
+                                            <artifact>org.duckdb:duckdb_jdbc</artifact>
+                                            <excludes>
+                                                <exclude>libduckdb_java.so_linux_arm64</exclude>
+                                                <exclude>libduckdb_java.so_linux_amd64</exclude>
+                                                <exclude>libduckdb_java.so_windows_amd64</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </filters>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Any OS Full -->
+        <profile>
+            <id>os:any-os-full</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <finalName.suffix>full</finalName.suffix>
+            </properties>
+        </profile>
+
+        <!-- Any OS Lite -->
+        <profile>
+            <id>os:any-os-lite</id>
+            <properties>
+                <finalName.suffix>lite</finalName.suffix>
+            </properties>
+        </profile>
+
+        <!-- Built-in module shared dependencies -->
+        <profile>
+            <id>jar:built-in-small</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <!-- 内置模块的依赖 -->
+            <dependencies>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-embedder-bge-small-zh-v15-q</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-embedder-onnx-local</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-storer-duckdb</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-reranker-ms-marco-minilm-l6-v2-q</artifactId>
+                    <version>${project.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.microsoft.onnxruntime</groupId>
+                            <artifactId>onnxruntime</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-reranker-onnx-local</artifactId>
+                    <version>${project.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.microsoft.onnxruntime</groupId>
+                            <artifactId>onnxruntime</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Built-in module shared dependencies -->
+        <profile>
+            <id>jar:built-in-large</id>
+            <!-- 内置模块的依赖 -->
+            <dependencies>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-embedder-bge-small-zh-v15</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-embedder-onnx-local</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-storer-duckdb</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-reranker-ms-marco-minilm-l6-v2</artifactId>
+                    <version>${project.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.microsoft.onnxruntime</groupId>
+                            <artifactId>onnxruntime</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-reranker-onnx-local</artifactId>
+                    <version>${project.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.microsoft.onnxruntime</groupId>
+                            <artifactId>onnxruntime</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Built-in module shared dependencies -->
+        <profile>
+            <id>jar:built-in-full</id>
+            <!-- 内置模块的依赖 -->
+            <dependencies>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-embedder-bge-small-zh-v15</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-embedder-bge-small-zh-v15-q</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-embedder-onnx-local</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-storer-duckdb</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-reranker-ms-marco-minilm-l6-v2</artifactId>
+                    <version>${project.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.microsoft.onnxruntime</groupId>
+                            <artifactId>onnxruntime</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-reranker-ms-marco-minilm-l6-v2-q</artifactId>
+                    <version>${project.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.microsoft.onnxruntime</groupId>
+                            <artifactId>onnxruntime</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-reranker-ms-marco-tinybert-l2-v2</artifactId>
+                    <version>${project.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.microsoft.onnxruntime</groupId>
+                            <artifactId>onnxruntime</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-reranker-ms-marco-tinybert-l2-v2-q</artifactId>
+                    <version>${project.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.microsoft.onnxruntime</groupId>
+                            <artifactId>onnxruntime</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>ai.intentchain</groupId>
+                    <artifactId>intentchain-reranker-onnx-local</artifactId>
+                    <version>${project.version}</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.microsoft.onnxruntime</groupId>
+                            <artifactId>onnxruntime</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+
+    </profiles>
+
+</project>

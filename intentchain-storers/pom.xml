@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ai.intentchain</groupId>
+        <artifactId>intentchain-parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>intentchain-storers</artifactId>
+    <packaging>pom</packaging>
+    <name>IntentChain : Storers :</name>
+
+    <modules>
+        <module>intentchain-storer-duckdb</module>
+        <module>intentchain-storer-weaviate</module>
+        <module>intentchain-storer-pgvector</module>
+        <module>intentchain-storer-qdrant</module>
+        <module>intentchain-storer-milvus</module>
+        <module>intentchain-storer-elasticsearch</module>
+    </modules>
+
+</project>
