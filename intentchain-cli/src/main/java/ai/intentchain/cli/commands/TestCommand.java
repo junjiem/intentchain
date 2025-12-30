@@ -90,7 +90,7 @@ public class TestCommand implements Callable<Integer> {
                         "@|fg(yellow),bold ⚠️ Testing completed with moderate accuracy.|@"));
             } else {
                 System.out.println(AnsiUtil.string(
-                        "@|fg(red),bold ❌ Testing completed with low accuracy. Please review the model.|@"));
+                        "@|fg(red),bold ❌ Testing completed with low accuracy. Please review the project.|@"));
             }
 
             return 0;
