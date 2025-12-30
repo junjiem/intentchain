@@ -6,12 +6,15 @@ import ai.intentchain.core.classifiers.data.TextLabel;
 import ai.intentchain.sdk.data.TestCase;
 import ai.intentchain.sdk.data.TestReport;
 import ai.intentchain.sdk.utils.ProjectUtil;
+import ai.intentchain.sdk.utils.TimeUtil;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -57,6 +60,7 @@ public class ProjectTester {
             throw new IOException("No CSV test files found in tests directory: " + testsDir);
         }
 
+        Instant start = Instant.now();
         AtomicBoolean isCompleted = new AtomicBoolean(false);
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {
@@ -76,6 +80,9 @@ public class ProjectTester {
             isCompleted.set(true);
             scheduler.shutdown();
         }
+        Duration duration = Duration.between(start, Instant.now());
+        String formattedDuration = TimeUtil.formatDuration(duration.toMillis());
+        System.out.println("\t[ " + formattedDuration + " ]");
 
         report.finish();
         log.info("Testing completed. Total: {}, Correct: {}, Failed: {}, Accuracy: {:.2f}%",
