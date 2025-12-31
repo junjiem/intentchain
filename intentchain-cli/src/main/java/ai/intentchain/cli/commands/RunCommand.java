@@ -4,7 +4,7 @@ import ai.intentchain.cli.processor.InputProcessor;
 import ai.intentchain.cli.provider.VersionProvider;
 import ai.intentchain.cli.utils.AnsiUtil;
 import ai.intentchain.core.chain.data.CascadeResult;
-import ai.intentchain.core.classifiers.data.Intent;
+import ai.intentchain.core.classifiers.data.TextLabel;
 import ai.intentchain.sdk.ProjectBuilder;
 import ai.intentchain.sdk.ProjectRunner;
 import ai.intentchain.sdk.utils.ProjectUtil;
@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 /**
  * Run project commands
@@ -47,6 +47,10 @@ public class RunCommand implements Callable<Integer> {
     @Option(names = {"--skip-build"},
             description = "Skip incremental build")
     private boolean skipBuild;
+
+    @Option(names = {"--skip-feedback"},
+            description = "Skip ask user for feedback")
+    private boolean skipFeedback;
 
     @Override
     public Integer call() {
@@ -110,10 +114,10 @@ public class RunCommand implements Callable<Integer> {
                     printHelp();
                     continue;
                 }
-//                System.out.println("Question: [" + question + "]");
-                processor.startSpinner(); // 开始等待指示器
                 try {
+                    processor.startSpinner(); // 开始等待指示器
                     CascadeResult result = runner.classify(question);
+                    processor.stopSpinner(); // 停止等待指示器
                     Duration duration = result.getDuration();
                     String seconds = duration.toMillis() > 0 ?
                             String.format("%.3f", duration.toMillis() / 1000.0) :
@@ -124,13 +128,38 @@ public class RunCommand implements Callable<Integer> {
                     System.out.println(AnsiUtil.string("@|fg(blue) Cascade: " + cascadePath + "|@"));
                     System.out.println(AnsiUtil.string("@|fg(cyan) Intents: "
                                                        + JSON_MAPPER.writeValueAsString(result.getIntents()) + "|@"));
+
+                    // Ask user for feedback
+                    if (!skipFeedback) {
+                        String likeInput = processor.readLine(AnsiUtil.string(
+                                "@|fg(magenta) 👍 Satisfied with the result? (y/yes to like and train, others to skip):|@ "));
+                        if (likeInput != null &&
+                            (likeInput.equalsIgnoreCase("y") || likeInput.equalsIgnoreCase("yes"))) {
+                            System.out.println(AnsiUtil.string("@|fg(green) ⚡ Start training...|@"));
+                            try {
+                                List<TextLabel> textLabels = result.getIntents()
+                                        .stream().map(i -> new TextLabel(question, i.getLabel()))
+                                        .collect(Collectors.toList());
+                                runner.train(textLabels);
+                                System.out.println(AnsiUtil.string("@|fg(green) ✅ Training completed!|@"));
+                            } catch (Exception e1) {
+                                log.warn("Training failed: " + e1.getMessage(), e1);
+                                System.out.println(AnsiUtil.string(
+                                        "@|fg(red) ❌ Training failed: " + e1.getMessage() + "|@"));
+                            }
+                        } else {
+                            System.out.println(AnsiUtil.string("@|fg(yellow) ⏭️ Training skipped|@"));
+                        }
+                    }
+
+                } catch (EndOfFileException | UserInterruptException e) {
+                    // 用户中断，优雅退出
+                    System.out.println("👋 Bye!");
+                    return 0;
                 } catch (Exception e) {
                     log.warn("error: " + e.getMessage(), e);
                     System.out.println(AnsiUtil.string("@|fg(red) error: " + e.getMessage() + "|@"));
                 }
-                processor.stopSpinner(); // 停止等待指示器
-
-
                 round += 1;
             }
             System.out.println(AnsiUtil.string("@|fg(green) " + ("─".repeat(100)) + "|@"));

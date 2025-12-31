@@ -35,7 +35,7 @@ public class ProjectRunner {
         return result;
     }
 
-    public void train(@NonNull List<TextLabel> trainingData) {
-        intentChain.train(trainingData);
+    public void train(@NonNull List<TextLabel> textLabels) {
+        intentChain.train(textLabels);
     }
 }

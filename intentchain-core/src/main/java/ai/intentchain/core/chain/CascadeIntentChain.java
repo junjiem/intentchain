@@ -96,9 +96,9 @@ public class CascadeIntentChain {
         return new CascadeResult(traceId, text, cascadePath, start);
     }
 
-    public Map<String, List<String>> train(@NonNull List<TextLabel> trainingData) {
+    public Map<String, List<String>> train(@NonNull List<TextLabel> textLabels) {
         return trainers.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().train(trainingData)));
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().train(textLabels)));
     }
 
     public void remove(@NonNull Map<String, List<String>> keysMap) {
