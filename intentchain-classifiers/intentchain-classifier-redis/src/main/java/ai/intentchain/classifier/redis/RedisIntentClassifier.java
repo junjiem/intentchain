@@ -29,6 +29,7 @@ public class RedisIntentClassifier implements IntentClassifier, IntentCache {
 
     private final JedisPooled client;
     private final String prefix;
+    private final Integer maxTextLength;
 
     @Builder
     public RedisIntentClassifier(@NonNull String name,
@@ -36,7 +37,8 @@ public class RedisIntentClassifier implements IntentClassifier, IntentCache {
                                  String user, String password,
                                  JedisPooled jedisPooled,
                                  JedisClientConfig clientConfig,
-                                 String prefix) {
+                                 String prefix,
+                                 Integer maxTextLength) {
         this.name = name;
         if (uri != null) {
             this.client = new JedisPooled(uri);
@@ -50,6 +52,7 @@ public class RedisIntentClassifier implements IntentClassifier, IntentCache {
                     .orElse(new JedisPooled(new HostAndPort(host, port), actualConfig));
         }
         this.prefix = Optional.ofNullable(prefix).orElse("intentchain:");
+        this.maxTextLength = Optional.ofNullable(maxTextLength).orElse(128);
     }
 
     @Override
@@ -77,6 +80,11 @@ public class RedisIntentClassifier implements IntentClassifier, IntentCache {
     @Override
     public void set(@NonNull String key, @NonNull List<String> value) {
         log.debug("Redis - Start set the cache.");
+        if (key.length() > maxTextLength) {
+            log.debug("Redis - The key length is greater than the " + maxTextLength + ", not be write to the cache.");
+            return;
+        }
+        log.debug("Redis - Set key: " + key + ", and value: [" + String.join(",", value) + "]");
         String keyStr = prefix + key;
         client.del(keyStr);
         client.lpush(keyStr, value.toArray(new String[0]));

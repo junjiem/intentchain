@@ -3,11 +3,13 @@ package ai.intentchain.core.classifiers;
 import ai.intentchain.core.classifiers.data.Intent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -19,12 +21,15 @@ public class InMemoryIntentClassifier implements IntentClassifier, IntentCache {
 
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
-    private final String name;
-
     private final ConcurrentHashMap<String, List<String>> cache = new ConcurrentHashMap<>();
 
-    public InMemoryIntentClassifier(@NonNull String name) {
+    private final String name;
+    private final Integer maxTextLength;
+
+    @Builder
+    public InMemoryIntentClassifier(@NonNull String name, Integer maxTextLength) {
         this.name = name;
+        this.maxTextLength = Optional.ofNullable(maxTextLength).orElse(128);
     }
 
     @Override
@@ -52,6 +57,10 @@ public class InMemoryIntentClassifier implements IntentClassifier, IntentCache {
     @Override
     public void set(@NonNull String key, @NonNull List<String> value) {
         log.debug("InMemory - Start set the cache.");
+        if (key.length() > maxTextLength) {
+            log.debug("InMemory - The key length is greater than the " + maxTextLength + ", not be write to the cache.");
+            return;
+        }
         log.debug("InMemory - Set key: " + key + ", and value: [" + String.join(",", value) + "]");
         cache.put(key, value);
         log.debug("InMemory - The cache has been completed.");

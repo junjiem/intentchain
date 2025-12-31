@@ -59,6 +59,13 @@ public class RedisIntentClassifierFactory implements IntentClassifierFactory {
                     .defaultValue("intentchain:")
                     .withDescription("The prefix of the key, which should end with a colon (e.g., \"intentchain:\").");
 
+    public static final ConfigOption<Integer> MAX_TEXT_LENGTH =
+            ConfigOptions.key("max-text-length")
+                    .intType()
+                    .defaultValue(128)
+                    .withDescription("Maximum number of characters allowed for the text to be cached." +
+                                     "Texts whose length exceeds this value will not be written into the cache.");
+
     @Override
     public String factoryIdentifier() {
         return IDENTIFIER;
@@ -76,7 +83,7 @@ public class RedisIntentClassifierFactory implements IntentClassifierFactory {
 
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
-        return new LinkedHashSet<>(List.of(URI, HOST, PORT, USER, PASSWORD, PREFIX));
+        return new LinkedHashSet<>(List.of(URI, HOST, PORT, USER, PASSWORD, PREFIX, MAX_TEXT_LENGTH));
     }
 
     @Override
@@ -97,6 +104,7 @@ public class RedisIntentClassifierFactory implements IntentClassifierFactory {
         config.getOptional(USER).ifPresent(builder::user);
         config.getOptional(PASSWORD).ifPresent(builder::password);
         config.getOptional(PREFIX).ifPresent(builder::prefix);
+        config.getOptional(MAX_TEXT_LENGTH).ifPresent(builder::maxTextLength);
         return builder.build();
     }
 
@@ -108,5 +116,8 @@ public class RedisIntentClassifierFactory implements IntentClassifierFactory {
             Preconditions.checkArgument(config.getOptional(PORT).isPresent(),
                     "'" + PORT.key() + "' is required");
         }
+        Integer maxTextLength = config.get(MAX_TEXT_LENGTH);
+        Preconditions.checkArgument(maxTextLength > 0,
+                "'" + MAX_TEXT_LENGTH.key() + "' value must be greater than 0");
     }
 }
