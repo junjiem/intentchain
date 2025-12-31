@@ -1,6 +1,7 @@
 package ai.intentchain.core.chain;
 
 import ai.intentchain.core.chain.data.CascadeResult;
+import ai.intentchain.core.classifiers.DefaultIntentClassifier;
 import ai.intentchain.core.classifiers.IntentCache;
 import ai.intentchain.core.classifiers.IntentClassifier;
 import ai.intentchain.core.classifiers.IntentTrainer;
@@ -9,6 +10,7 @@ import ai.intentchain.core.classifiers.data.TextLabel;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -49,6 +51,16 @@ public class CascadeIntentChain {
     public CascadeResult classify(@NonNull String text) {
         Instant start = Instant.now();
         String traceId = UUID.randomUUID().toString();
+        if (StringUtils.isBlank(text)) {
+            Optional<IntentClassifier> classifierOptional = classifiers.stream()
+                    .filter(c -> c instanceof DefaultIntentClassifier)
+                    .findFirst();
+            if (classifierOptional.isPresent()) {
+                IntentClassifier classifier = classifierOptional.get();
+                return new CascadeResult(traceId, text, classifier.classify(text),
+                        Collections.singletonList(classifier.classifierName()), start);
+            }
+        }
         List<String> cascadePath = new ArrayList<>();
         List<Intent> intents = null;
         for (IntentClassifier classifier : classifiers) {
