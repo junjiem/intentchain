@@ -1,7 +1,11 @@
 # IntentChain OpenAPI Server 配置
 
 springdoc:
+  # Swagger UI 配置
   swagger-ui:
+    enabled: true  # 默认启用，生产环境建议设置为 false
     try-it-out-enabled: true
+  # API 文档配置
   api-docs:
+    enabled: true  # 默认启用，生产环境建议设置为 false
     path: /v3/api-docs

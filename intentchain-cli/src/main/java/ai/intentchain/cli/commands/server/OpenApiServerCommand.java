@@ -23,7 +23,7 @@ import java.util.concurrent.Callable;
         name = "openapi",
         mixinStandardHelpOptions = true,
         versionProvider = VersionProvider.class,
-        description = "Start IntentChain OpenAPI Server and Swagger UI"
+        description = "Start IntentChain OpenAPI Server"
 )
 @Slf4j
 public class OpenApiServerCommand implements Callable<Integer> {
@@ -42,6 +42,10 @@ public class OpenApiServerCommand implements Callable<Integer> {
             description = "Server port (default: 8080)",
             defaultValue = "8080")
     private int port;
+
+    @Option(names = {"--disable-swagger"},
+            description = "Disable Swagger UI (recommended to disable in production)")
+    private boolean disableSwagger;
 
     @Override
     public Integer call() {
@@ -64,6 +68,8 @@ public class OpenApiServerCommand implements Callable<Integer> {
                 add("--server.port=" + port);
                 add("--server.address=" + host);
                 add("--intentchain.server.project-path=" + projectPath);
+                add("--springdoc.swagger-ui.enabled=" + !disableSwagger);
+                add("--springdoc.api-docs.enabled=" + !disableSwagger);
             }};
             String[] args = argsList.toArray(new String[0]);
 
@@ -112,9 +118,13 @@ public class OpenApiServerCommand implements Callable<Integer> {
 
     private void printUrls() {
         String baseUrl = "http://" + host + ":" + port;
-        System.out.println("📖 Swagger UI: " + baseUrl + "/swagger-ui/index.html");
-        System.out.println("📄 API Docs:   " + baseUrl + "/v3/api-docs");
-        System.out.println("🏥 Health:     " + baseUrl + "/api/v1/health");
+        if (!disableSwagger) {
+            System.out.println("📖 Swagger UI: " + baseUrl + "/swagger-ui/index.html");
+            System.out.println("📄 API Docs: " + baseUrl + "/v3/api-docs");
+        } else {
+            System.out.println("⚠️ Swagger UI is disabled");
+        }
+        System.out.println("🏥 Health: " + baseUrl + "/api/v1/health");
         System.out.println();
         System.out.println("Press Ctrl+C to stop");
     }
