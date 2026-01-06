@@ -1,0 +1,43 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ai.intentchain</groupId>
+        <artifactId>intentchain-storers</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>intentchain-storer-tidb</artifactId>
+    <name>IntentChain : Storers : TiDB</name>
+
+    <properties>
+        <mysql.version>9.3.0</mysql.version>
+        <hikari.version>5.1.0</hikari.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikari.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

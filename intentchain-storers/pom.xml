@@ -19,6 +19,7 @@
         <module>intentchain-storer-qdrant</module>
         <module>intentchain-storer-milvus</module>
         <module>intentchain-storer-elasticsearch</module>
+        <module>intentchain-storer-tidb</module>
     </modules>
 
 </project>
