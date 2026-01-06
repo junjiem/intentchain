@@ -109,8 +109,10 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
         // 初始化数据源
         HikariConfig config = new HikariConfig();
         if (jdbcUrl == null) {
-            config.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s?useSSL=false&allowPublicKeyRetrieval=true",
-                    host, port, database));
+            config.setJdbcUrl(
+                    String.format("jdbc:mysql://%s:%d/%s?useSSL=false&allowPublicKeyRetrieval=true",
+                            host, port, Optional.ofNullable(database).orElse(""))
+            );
         } else {
             config.setJdbcUrl(jdbcUrl);
         }
@@ -146,18 +148,18 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(createTableSql);
-            log.info("表 {} 创建成功或已存在", tableName);
+            log.info("Table {} created successfully or already exists", tableName);
 
             // 创建 TiFlash 副本（如果尚未创建）
             try {
                 String alterTableSql = String.format(ALTER_TABLE_TIFLASH_TEMPLATE, tableName);
                 stmt.execute(alterTableSql);
-                log.info("TiFlash 副本已创建或已存在");
+                log.info("TiFlash replica created or already exists");
             } catch (SQLException e) {
-                log.warn("创建 TiFlash 副本失败（可能已存在）: {}", e.getMessage());
+                log.warn("Failed to create TiFlash replica (may already exist): {}", e.getMessage());
             }
         } catch (SQLException e) {
-            throw new RuntimeException("创建表失败", e);
+            throw new RuntimeException("Failed to create table", e);
         }
     }
 
@@ -166,17 +168,17 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(dropTableSql);
-            log.info("表 {} 已删除", tableName);
+            log.info("Table {} deleted", tableName);
         } catch (SQLException e) {
-            throw new RuntimeException("删除表失败", e);
+            throw new RuntimeException("Failed to delete table", e);
         }
     }
 
     private void createVectorIndex() {
         // 检查距离度量是否支持向量索引
         if (!distanceMetric.supportsVectorIndex()) {
-            log.warn("距离度量 {} 不支持向量索引，跳过索引创建。支持向量索引的距离度量: COSINE, L2",
-                    distanceMetric.getValue());
+            log.warn("Distance metric {} does not support vector index, skipping index creation. " +
+                     "Supported distance metrics: COSINE, L2", distanceMetric.getValue());
             return;
         }
 
@@ -189,10 +191,10 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(createIndexSql);
-            log.info("向量索引 {} 创建成功", indexName);
+            log.info("Vector index {} created successfully", indexName);
         } catch (SQLException e) {
             // 索引可能已存在，记录警告而不是抛出异常
-            log.warn("创建向量索引失败（可能已存在）: {}", e.getMessage());
+            log.warn("Failed to create vector index (may already exist): {}", e.getMessage());
         }
     }
 
@@ -232,20 +234,17 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
             }
 
             pstmt.executeBatch();
-            log.debug("批量添加了 {} 个向量", embeddings.size());
+            log.debug("Batch added {} embeddings", embeddings.size());
         } catch (SQLException e) {
-            throw new RuntimeException("批量添加向量失败", e);
+            throw new RuntimeException("Failed to batch add embeddings", e);
         }
 
         return ids;
     }
 
-    /**
-     * 批量添加带 TextSegment 的向量
-     */
     public List<String> addAll(List<Embedding> embeddings, List<TextSegment> textSegments) {
         if (embeddings.size() != textSegments.size()) {
-            throw new IllegalArgumentException("embeddings 和 textSegments 的数量必须一致");
+            throw new IllegalArgumentException("The number of embeddings and textSegments must match");
         }
 
         List<String> ids = new ArrayList<>(embeddings.size());
@@ -268,9 +267,9 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
             }
 
             pstmt.executeBatch();
-            log.debug("批量添加了 {} 个向量及文本片段", embeddings.size());
+            log.debug("Batch added {} embeddings with text segments", embeddings.size());
         } catch (SQLException e) {
-            throw new RuntimeException("批量添加向量失败", e);
+            throw new RuntimeException("Failed to batch add embeddings", e);
         }
 
         return ids;
@@ -288,9 +287,9 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
             pstmt.setString(4, textSegment != null ? metadataToJson(textSegment.metadata()) : null);
 
             pstmt.executeUpdate();
-            log.debug("向量已添加: id={}", id);
+            log.debug("Embedding added: id={}", id);
         } catch (SQLException e) {
-            throw new RuntimeException("添加向量失败", e);
+            throw new RuntimeException("Failed to add embedding", e);
         }
     }
 
@@ -342,7 +341,7 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("搜索向量失败", e);
+            throw new RuntimeException("Failed to search embeddings", e);
         }
 
         return new EmbeddingSearchResult<>(matches);
@@ -379,7 +378,7 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
         try {
             return OBJECT_MAPPER.writeValueAsString(metadata.toMap());
         } catch (Exception e) {
-            log.error("序列化元数据失败", e);
+            log.error("Failed to serialize metadata", e);
             return null;
         }
     }
@@ -396,7 +395,7 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
             );
             return Metadata.from(map);
         } catch (Exception e) {
-            log.error("解析元数据失败", e);
+            log.error("Failed to parse metadata", e);
             return new Metadata();
         }
     }
@@ -408,14 +407,14 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
 
         if (ids.size() != embeddings.size()) {
             throw new IllegalArgumentException(
-                    String.format("ids 和 embeddings 的数量必须一致，但 ids.size()=%d, embeddings.size()=%d",
+                    String.format("The number of ids and embeddings must match, but ids.size()=%d, embeddings.size()=%d",
                             ids.size(), embeddings.size())
             );
         }
 
         if (embedded != null && embedded.size() != embeddings.size()) {
             throw new IllegalArgumentException(
-                    String.format("embedded 的数量必须与 embeddings 一致，但 embedded.size()=%d, embeddings.size()=%d",
+                    String.format("The number of embedded must match embeddings, but embedded.size()=%d, embeddings.size()=%d",
                             embedded.size(), embeddings.size())
             );
         }
@@ -438,15 +437,12 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
             }
 
             pstmt.executeBatch();
-            log.debug("批量添加了 {} 个向量（使用指定 ID）", embeddings.size());
+            log.debug("Batch added {} embeddings (with specified IDs)", embeddings.size());
         } catch (SQLException e) {
-            throw new RuntimeException("批量添加向量失败", e);
+            throw new RuntimeException("Failed to batch add embeddings", e);
         }
     }
 
-    /**
-     * 批量移除指定 ID 的向量
-     */
     @Override
     public void removeAll(Collection<String> ids) {
         if (ids == null || ids.isEmpty()) {
@@ -464,9 +460,9 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
 
             int[] deleted = pstmt.executeBatch();
             int totalDeleted = Arrays.stream(deleted).sum();
-            log.debug("批量删除了 {} 条记录", totalDeleted);
+            log.debug("Batch deleted {} records", totalDeleted);
         } catch (SQLException e) {
-            throw new RuntimeException("批量删除向量失败", e);
+            throw new RuntimeException("Failed to batch delete embeddings", e);
         }
     }
 
@@ -481,41 +477,35 @@ public class TiDBEmbeddingStore implements EmbeddingStore<TextSegment>, AutoClos
             try (Connection conn = dataSource.getConnection();
                  Statement stmt = conn.createStatement()) {
                 int deleted = stmt.executeUpdate(deleteSql);
-                log.info("根据过滤条件删除了 {} 条记录", deleted);
+                log.info("Deleted {} records by filter condition", deleted);
             } catch (SQLException e) {
-                throw new RuntimeException("根据过滤条件删除向量失败", e);
+                throw new RuntimeException("Failed to delete embeddings by filter condition", e);
             }
         } catch (UnsupportedOperationException e) {
             // 如果过滤器类型不支持，抛出更友好的异常
             throw new UnsupportedFeatureException(
-                    "不支持的 Filter 类型: " + e.getMessage()
+                    "Unsupported Filter type: " + e.getMessage()
             );
         }
     }
 
-    /**
-     * 移除所有向量
-     */
     @Override
     public void removeAll() {
         String truncateSql = String.format(TRUNCATE_QUERY_TEMPLATE, tableName);
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(truncateSql);
-            log.info("清空了表 {}", tableName);
+            log.info("Truncated table {}", tableName);
         } catch (SQLException e) {
-            throw new RuntimeException("清空表失败", e);
+            throw new RuntimeException("Failed to truncate table", e);
         }
     }
 
-    /**
-     * 关闭数据源连接
-     */
     @Override
     public void close() {
         if (dataSource instanceof HikariDataSource) {
             ((HikariDataSource) dataSource).close();
-            log.info("数据源已关闭");
+            log.info("DataSource closed");
         }
     }
 }

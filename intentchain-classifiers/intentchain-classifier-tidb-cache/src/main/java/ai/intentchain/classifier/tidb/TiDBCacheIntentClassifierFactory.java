@@ -1,109 +1,84 @@
-package ai.intentchain.storer.tidb;
+package ai.intentchain.classifier.tidb;
 
+import ai.intentchain.core.classifiers.IntentClassifier;
 import ai.intentchain.core.configuration.ConfigOption;
 import ai.intentchain.core.configuration.ConfigOptions;
 import ai.intentchain.core.configuration.ReadableConfig;
-import ai.intentchain.core.factories.EmbeddingStoreFactory;
+import ai.intentchain.core.factories.IntentClassifierFactory;
 import ai.intentchain.core.utils.FactoryUtil;
 import com.google.common.base.Preconditions;
 import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.scoring.ScoringModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import lombok.NonNull;
 
 import java.time.Duration;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
- * TiDB Embedding Store Factory
+ * TiDB Cache Intent Classifier Factory
  */
-public class TiDBEmbeddingStoreFactory implements EmbeddingStoreFactory {
+public class TiDBCacheIntentClassifierFactory implements IntentClassifierFactory {
 
-    public static final String IDENTIFIER = "tidb";
-
-    public static final String DEFAULT_TABLE_NAME_PREFIX = "ic_embeddings";
+    public static final String IDENTIFIER = "tidb-cache";
 
     public static final ConfigOption<String> JDBC_URL =
             ConfigOptions.key("jdbc-url")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("JDBC url of the TiDB server. (e.g., jdbc:mysql://localhost:4000)");
+                    .withDescription("TiDB JDBC URL. (e.g., jdbc:mysql://localhost:4000/test)");
 
     public static final ConfigOption<String> HOST =
             ConfigOptions.key("host")
                     .stringType()
                     .defaultValue("localhost")
-                    .withDescription("Hostname of the TiDB server.");
+                    .withDescription("TiDB Server host.");
 
     public static final ConfigOption<Integer> PORT =
             ConfigOptions.key("port")
                     .intType()
                     .defaultValue(4000)
-                    .withDescription("Port number of the TiDB server.");
-
-    public static final ConfigOption<String> USERNAME =
-            ConfigOptions.key("username")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Username for database authentication.");
-
-    public static final ConfigOption<String> PASSWORD =
-            ConfigOptions.key("password")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Password for database authentication.");
+                    .withDescription("TiDB Server port.");
 
     public static final ConfigOption<String> DATABASE =
             ConfigOptions.key("database")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("Name of the database to connect to.");
+                    .withDescription("TiDB database name.");
 
-    public static final ConfigOption<String> TABLE_PREFIX =
-            ConfigOptions.key("table-prefix")
+    public static final ConfigOption<String> USERNAME =
+            ConfigOptions.key("username")
                     .stringType()
-                    .defaultValue(DEFAULT_TABLE_NAME_PREFIX)
-                    .withDescription("The name prefix of the database table used for storing embeddings.");
-
-    public static final ConfigOption<Integer> DIMENSION =
-            ConfigOptions.key("dimension")
-                    .intType()
                     .noDefaultValue()
-                    .withDescription("The dimensionality of the embedding vectors. " +
-                                     "This should match the embedding model being used.");
+                    .withDescription("TiDB username.");
 
-    public static final ConfigOption<String> DISTANCE_METRIC =
-            ConfigOptions.key("distance-metric")
+    public static final ConfigOption<String> PASSWORD =
+            ConfigOptions.key("password")
                     .stringType()
-                    .defaultValue(DistanceMetric.COSINE.getValue())
-                    .withDescription("""
-                            Vector distance metric. Available options:
-                            - cosine: Cosine distance (default, supports vector index)
-                            - l2: L2 distance / Euclidean distance (supports vector index)
-                            - l1: L1 distance / Manhattan distance (no vector index support)
-                            - inner_product: Inner product (no vector index support)
-                            Note: Only 'cosine' and 'l2' support vector indexes for optimized queries.
-                            """);
+                    .noDefaultValue()
+                    .withDescription("TiDB password.");
 
-    public static final ConfigOption<Boolean> CREATE_TABLE =
-            ConfigOptions.key("create-table")
+    public static final ConfigOption<String> TABLE_NAME =
+            ConfigOptions.key("table-name")
+                    .stringType()
+                    .defaultValue("intentchain_cache")
+                    .withDescription("The name of the table in TiDB.");
+
+    public static final ConfigOption<Boolean> USE_CACHED_TABLE =
+            ConfigOptions.key("use-cached-table")
                     .booleanType()
                     .defaultValue(true)
-                    .withDescription("Whether to automatically create the table if it doesn't exist.");
+                    .withDescription("Whether to use TiDB CACHED TABLE feature for in-memory caching. " +
+                                     "This significantly improves query performance by caching the entire table in memory.");
 
-    public static final ConfigOption<Boolean> DROP_TABLE_FIRST =
-            ConfigOptions.key("drop-table-first")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("Whether to drop the table before creating it (useful for a fresh start).");
-
-    public static final ConfigOption<Boolean> CREATE_VECTOR_INDEX =
-            ConfigOptions.key("create-vector-index")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("Whether to create a vector index to improve search performance. " +
-                                     "Only effective for 'cosine' and 'l2' distance metrics.");
+    public static final ConfigOption<Integer> MAX_TEXT_LENGTH =
+            ConfigOptions.key("max-text-length")
+                    .intType()
+                    .defaultValue(128)
+                    .withDescription("Maximum number of characters allowed for the text to be cached. " +
+                                     "Texts whose length exceeds this value will not be written into the cache.");
 
     public static final ConfigOption<Integer> MAX_POOL_SIZE =
             ConfigOptions.key("max-pool-size")
@@ -147,39 +122,40 @@ public class TiDBEmbeddingStoreFactory implements EmbeddingStoreFactory {
     }
 
     @Override
+    public String factoryDescription() {
+        return "Intent classifier using the TiDB cache with connection pooling.";
+    }
+
+    @Override
     public Set<ConfigOption<?>> requiredOptions() {
-        return new LinkedHashSet<>(List.of(DIMENSION));
+        return Collections.emptySet();
     }
 
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         return new LinkedHashSet<>(List.of(
-                JDBC_URL, HOST, PORT, USERNAME, DATABASE,
-                TABLE_PREFIX, DISTANCE_METRIC, CREATE_TABLE, DROP_TABLE_FIRST,
-                CREATE_VECTOR_INDEX, MAX_POOL_SIZE, MIN_IDLE_CONNECTIONS, CONNECTION_TIMEOUT,
+                JDBC_URL, HOST, PORT, DATABASE, USERNAME, PASSWORD,
+                TABLE_NAME, USE_CACHED_TABLE, MAX_TEXT_LENGTH,
+                MAX_POOL_SIZE, MIN_IDLE_CONNECTIONS, CONNECTION_TIMEOUT,
                 IDLE_TIMEOUT, MAX_LIFETIME, LEAK_DETECTION_THRESHOLD
         ));
     }
 
     @Override
-    public Set<ConfigOption<?>> fingerprintOptions() {
-        return Set.of(JDBC_URL, HOST, PORT, USERNAME, DATABASE, TABLE_PREFIX, DIMENSION, DISTANCE_METRIC);
-    }
-
-    @Override
-    public EmbeddingStore<TextSegment> create(String storeId, ReadableConfig config) {
+    public IntentClassifier create(@NonNull String name,
+                                   @NonNull ReadableConfig config,
+                                   EmbeddingModel embeddingModel,
+                                   EmbeddingStore<TextSegment> embeddingStore,
+                                   ScoringModel scoringModel,
+                                   ChatModel chatModel) {
         FactoryUtil.validateFactoryOptions(this, config);
         validateConfigOptions(config);
 
-        String tableNamePrefix = config.get(TABLE_PREFIX);
-        Integer dimension = config.get(DIMENSION);
-        String distanceMetric = config.get(DISTANCE_METRIC);
-        String tableName = String.join("_", tableNamePrefix, storeId.replace('-', '_'));
+        String tableName = config.get(TABLE_NAME);
 
-        TiDBEmbeddingStore.TiDBEmbeddingStoreBuilder builder = TiDBEmbeddingStore.builder()
-                .tableName(tableName)
-                .dimension(dimension)
-                .distanceMetric(DistanceMetric.fromValue(distanceMetric));
+        TiDBCacheIntentClassifier.TiDBCacheIntentClassifierBuilder builder = TiDBCacheIntentClassifier.builder()
+                .name(name)
+                .tableName(tableName);
 
         config.getOptional(JDBC_URL).ifPresent(builder::jdbcUrl);
         config.getOptional(HOST).ifPresent(builder::host);
@@ -188,9 +164,8 @@ public class TiDBEmbeddingStoreFactory implements EmbeddingStoreFactory {
         config.getOptional(USERNAME).ifPresent(builder::username);
         config.getOptional(PASSWORD).ifPresent(builder::password);
 
-        config.getOptional(CREATE_TABLE).ifPresent(builder::createTable);
-        config.getOptional(DROP_TABLE_FIRST).ifPresent(builder::dropTableFirst);
-        config.getOptional(CREATE_VECTOR_INDEX).ifPresent(builder::createVectorIndex);
+        config.getOptional(USE_CACHED_TABLE).ifPresent(builder::useCachedTable);
+        config.getOptional(MAX_TEXT_LENGTH).ifPresent(builder::maxTextLength);
 
         config.getOptional(MAX_POOL_SIZE).ifPresent(builder::maxPoolSize);
         config.getOptional(MIN_IDLE_CONNECTIONS).ifPresent(builder::minIdleConnections);
@@ -211,6 +186,10 @@ public class TiDBEmbeddingStoreFactory implements EmbeddingStoreFactory {
                     "'" + PORT.key() + "' is required when '" + JDBC_URL.key() + "' is not provided");
         }
 
+        Integer maxTextLength = config.get(MAX_TEXT_LENGTH);
+        Preconditions.checkArgument(maxTextLength > 0,
+                "'" + MAX_TEXT_LENGTH.key() + "' value must be greater than 0");
+
         Integer maxPoolSize = config.get(MAX_POOL_SIZE);
         Preconditions.checkArgument(maxPoolSize > 0,
                 "'" + MAX_POOL_SIZE.key() + "' value must be greater than 0");
@@ -222,4 +201,3 @@ public class TiDBEmbeddingStoreFactory implements EmbeddingStoreFactory {
                 ") must be less than or equal to '" + MAX_POOL_SIZE.key() + "' (" + maxPoolSize + ")");
     }
 }
-

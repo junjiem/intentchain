@@ -86,6 +86,11 @@
             <artifactId>intentchain-storer-elasticsearch</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-storer-tidb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- IntentChain Embedding Model -->
         <dependency>
@@ -172,6 +177,11 @@
         <dependency>
             <groupId>ai.intentchain</groupId>
             <artifactId>intentchain-classifier-rac</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-classifier-tidb-cache</artifactId>
             <version>${project.version}</version>
         </dependency>
 

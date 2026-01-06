@@ -18,6 +18,7 @@
         <module>intentchain-classifier-redis</module>
         <module>intentchain-classifier-retrieval</module>
         <module>intentchain-classifier-rac</module>
+        <module>intentchain-classifier-tidb-cache</module>
     </modules>
 
 </project>

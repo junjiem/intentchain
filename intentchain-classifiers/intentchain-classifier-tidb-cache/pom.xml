@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ai.intentchain</groupId>
+        <artifactId>intentchain-classifiers</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>intentchain-classifier-tidb-cache</artifactId>
+    <name>IntentChain : Classifiers : TiDB Cache</name>
+    <description>Intent classifier using the TiDB cache.</description>
+
+    <properties>
+        <mysql.version>9.3.0</mysql.version>
+        <hikari.version>5.1.0</hikari.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>ai.intentchain</groupId>
+            <artifactId>intentchain-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikari.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>
